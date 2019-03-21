@@ -48,5 +48,12 @@ namespace XGame.Domain.Entities
         {
             return Nome.PrimeiroNome + " " + Nome.SegundoNome;
         }
+
+        public void Alterar(Nome nome, Email email)
+        {
+            Nome = nome;
+            Email = email;
+            AddNotifications(nome, email);
+        }
     }
 }

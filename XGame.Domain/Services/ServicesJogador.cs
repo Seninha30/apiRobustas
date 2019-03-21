@@ -1,5 +1,4 @@
 ﻿using prmToolkit.NotificationPattern;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using XGame.Domain.Arguments.Jogador;
@@ -36,7 +35,7 @@ namespace XGame.Domain.Services
                 return null;
             }
             Jogador id = _repositoryJogador.AdicionarJogador(jogador);
-            return new AdicionarJogadorResponse() { Id = id, Message = "Operação realizada com sucesso" };
+            return new AdicionarJogadorResponse() { Id = id.Id, Message = "Operação realizada com sucesso" };
         }
 
         public AutenticarJogadorResponse AutenticarJogador(AutenticarJogadorRequest request)
@@ -67,7 +66,32 @@ namespace XGame.Domain.Services
 
         public AlterarJogadorResponse AlterarJogador(AlterarJogadorRequest request)
         {
-            throw new NotImplementedException();
+            if (request == null)
+            {
+                AddNotification("AlterarJogadorRequest", "Dados obrigatórios");
+                return null;
+            }
+
+            var jogador = _repositoryJogador.ObterId(request.Id);
+            if (jogador == null)
+            {
+                AddNotification("AlterarJogadorRequest", "Jogador não encontrado");
+                return null;
+            }
+
+            var email = new Email(request.Email);
+            var nome = new Nome(request.PrimeiroNome, request.SegundoNome);
+
+            jogador.Alterar(nome, email);
+
+            if (IsInvalid())
+            {
+                return null;
+            }
+
+            _repositoryJogador.AlterarJogador(jogador);
+
+            return (AlterarJogadorResponse)jogador;
         }
 
         public IEnumerable<JogadorResponse> Listar()
